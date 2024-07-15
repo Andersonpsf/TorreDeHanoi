@@ -214,7 +214,7 @@ while True:
 
     # Desenhando o contador de movimentos e o número mínimos de movimentos
     texto_movimentos_min = fonte.render(f"Movimentos Minimos: {movimentos_min}", True, (0, 0, 0))
-    tela.blit(texto_movimentos_min, (770, 10))
+    tela.blit(texto_movimentos_min, (1110, 10))
 
     texto_movimentos = fonte.render(f"Movimentos: {movimentos}", True, (0, 0, 0))
     tela.blit(texto_movimentos, (10, 10))
