@@ -13,7 +13,8 @@ tela = pygame.display.set_mode((1400, 790))
 pygame.display.set_caption("Torre Hanoi")
 clock = pygame.time.Clock()
 
-#Função que define a fonte
+
+# Função que define a fonte
 def text(size=36, bold=False):
     font_path = r"fonte/arial.ttf"
     fonte_style = pygame.font.Font(font_path, size)
@@ -21,26 +22,35 @@ def text(size=36, bold=False):
         fonte_style.set_bold(True)
     return fonte_style
 
-#Definindo a variavél fonte
+
+# Definindo a variavél fonte
 fonte = text(size=26, bold=True)
 
-#Texto para o vencedor
+
+# Texto para o vencedor
 def Vencedor(tela, clock):
     texto_Vencedor = fonte.render("Parabéns! Você conseguiu!", True, (0, 255, 0))
     posicao_Vencedor = (tela.get_width() // 2 - texto_Vencedor.get_width() // 2, tela.get_height() // 5.5)
-    tela.blit(texto_Vencedor, posicao_Vencedor)
-    pygame.display.update()
+    texto_VencedorMin = fonte.render("Parabéns! Você usou o menor número de movimentos possíveis!", True, (0, 250, 0))
+    posicao_VencedorMin = (tela.get_width() // 2 - texto_VencedorMin.get_width() // 2, tela.get_height() // 5.5)
 
     while True:
+        if movimentos == movimentos_min:
+            tela.blit(texto_VencedorMin, posicao_VencedorMin)
+        else:
+            tela.blit(texto_Vencedor, posicao_Vencedor)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
             elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                 return
+        pygame.display.update()
         clock.tick(60)
 
-#Função que cria a tela de inicio
+
+# Função que cria a tela de inicio
 def tela_inicio(tela, clock):
     fonte = text()
     texto_instrucao = fonte.render("Pressione ESPAÇO para iniciar", True, (0, 0, 0))
@@ -65,6 +75,8 @@ def tela_inicio(tela, clock):
                 return
 
         clock.tick(60)
+
+
 def selecionar_num_anilhas(tela, clock):
     fonte = text()
     quantidade = 2
@@ -92,10 +104,16 @@ def selecionar_num_anilhas(tela, clock):
                     return quantidade
 
         clock.tick(60)
+
+
 def reiniciar_jogo():
-    global anilha_stack, movimentos, anilhaSelecionada
+    global anilha_stack, movimentos, anilhaSelecionada, Quant, movimentos_min
+    Quant = 0
+    #movimentos_min = 0
     movimentos = 0
     anilhaSelecionada = 0
+
+    tela_inicio(tela, clock)
 
     # Redefinir as hastes
     for haste in hastes:
@@ -105,6 +123,9 @@ def reiniciar_jogo():
     Quant = selecionar_num_anilhas(tela, clock)
     anilha_stack.clear()
 
+    # Definir o número minimo de movimentos necessários novamente
+    movimentos_min = 2 ** Quant - 1
+
     for i in range(Quant):
         anilha_stack.append(Anilhas[i])
 
@@ -113,6 +134,8 @@ def reiniciar_jogo():
         anilha.set_pos(300, 760 - i * 17)
         haste1.deque.append(anilha)
 
+# Chamando a função da tela de inicio
+tela_inicio(tela, clock)
 
 # Carregando os elementos:
 # Criando a base:
@@ -138,7 +161,7 @@ anilha6 = Anilha(6, pygame.image.load(r"images/retanguloRoxo.jpg").convert())
 anilha7 = Anilha(7, pygame.image.load(r"images/retangulocinza.jpg").convert())
 anilha8 = Anilha(8, pygame.image.load(r"images/retanguloLaranja.jpg").convert())
 anilha9 = Anilha(9, pygame.image.load(r"images/retanguloBege.jpg").convert())
-Anilhas = [anilha9, anilha8, anilha7, anilha6, anilha5, anilha4,anilha3,anilha2,anilha1, anilha0]
+Anilhas = [anilha9, anilha8, anilha7, anilha6, anilha5, anilha4, anilha3, anilha2, anilha1, anilha0]
 # Stack das anilhas:
 Quant = selecionar_num_anilhas(tela, clock)
 
@@ -146,6 +169,19 @@ Quant = selecionar_num_anilhas(tela, clock)
 anilha_stack = deque()
 for i in range(Quant):
     anilha_stack.append(Anilhas[i])
+
+# anilhas = deque([
+#    anilha0,
+#    anilha1,
+#    anilha2,
+#    anilha3,
+#    anilha4,
+#    anilha5,
+#    anilha6,
+#    anilha7,
+#    anilha8,
+#    anilha9
+# ])
 
 # Definindo as posições das anilhas e adicionando-as à haste 1:
 for i, anilha in enumerate(anilha_stack):
@@ -157,12 +193,10 @@ for i, anilha in enumerate(anilha_stack):
 background = pygame.Surface((1400, 800))
 background.fill("Azure")
 
-
 # Definindo a variável que caberá a anilha de cima:
 anilhaSelecionada = 0
 
-#Chamando a função da tela de inicio
-tela_inicio(tela, clock)
+movimentos_min = 2**Quant-1
 movimentos = 0
 
 # Criando o loop principal:
@@ -178,7 +212,10 @@ while True:
     for anilha in anilha_stack:
         tela.blit(anilha.get_img(), anilha.get_pos())
 
-        # Desenhando o contador de movimentos
+    # Desenhando o contador de movimentos e o número mínimos de movimentos
+    texto_movimentos_min = fonte.render(f"Movimentos Minimos: {movimentos_min}", True, (0, 0, 0))
+    tela.blit(texto_movimentos_min, (770, 10))
+
     texto_movimentos = fonte.render(f"Movimentos: {movimentos}", True, (0, 0, 0))
     tela.blit(texto_movimentos, (10, 10))
 
@@ -197,24 +234,20 @@ while True:
 
         elif event.type == pygame.MOUSEBUTTONUP:
             # Primeiro verifica se o clique foi em uma anilha
-            for anilha in reversed(anilha_stack):
-                if anilha.get_pos().collidepoint(mouse_pos):
+            for haste in hastes:
+                if haste.deque and haste.deque[-1].get_pos().collidepoint(mouse_pos):
+                    anilha = haste.deque[-1]
                     if anilhaSelecionada == 0:
-                        # Seleciona a anilha clicada
-                        anilhaSelecionada = anilha
-                        for haste in hastes:
-                            if anilha in haste.deque:
-                                haste.deque.remove(anilha)
+                        # Seleciona a anilha do topo da haste clicada
+                        anilhaSelecionada = haste.deque.pop()
                         anilhaSelecionada.set_pos(mouse_pos[0] - anilhaSelecionada.get_img().get_width() // 2, 200)
                     else:
-                        for haste in hastes:
-                            if haste.get_pos().collidepoint(mouse_pos):
-                                if len(haste.deque) == 0 or anilhaSelecionada.size < haste.deque[-1].size:
-                                    haste.deque.append(anilhaSelecionada)
-                                    anilhaSelecionada.set_pos(haste.get_pos()[0] + 15, 779 - 17 * len(haste.deque))
-                                    anilhaSelecionada = 0
-                                    movimentos+=1
-                                    break
+                        # Verifica se a anilha pode ser colocada na haste clicada
+                        if len(haste.deque) == 0 or anilhaSelecionada.size < haste.deque[-1].size:
+                            haste.deque.append(anilhaSelecionada)
+                            anilhaSelecionada.set_pos(haste.get_pos()[0] + 15, 779 - 17 * len(haste.deque))
+                            anilhaSelecionada = 0
+                            movimentos += 1
                     break
             else:
                 # Caso nenhuma anilha tenha sido clicada, verifica se o clique foi em uma haste
@@ -232,9 +265,9 @@ while True:
                                 haste.deque.append(anilhaSelecionada)
                                 anilhaSelecionada.set_pos(haste.get_pos()[0] + 15, 779 - 17 * len(haste.deque))
                                 anilhaSelecionada = 0
-                                movimentos+=1
+                                movimentos += 1
                         break
 
     # Atualizando a tela:
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(60)
